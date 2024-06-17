@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/buchgr/bazel-remote/v2/cache/disk/zstdimpl"
 )
@@ -485,11 +486,11 @@ func (h *header) write(f *os.File) error {
 		return err
 	}
 
-	var prevOffset int64
+	prevOffset := int64(-1)
 	for i := 0; int64(i) < int64(len(h.chunkOffsets)); i++ {
 		if h.chunkOffsets[i] <= prevOffset {
-			return fmt.Errorf("offset table values should increase: %d -> %d",
-				prevOffset, h.chunkOffsets[i])
+			return fmt.Errorf("offset table values should increase: %v",
+				strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
 		}
 		prevOffset = h.chunkOffsets[i]
 	}
