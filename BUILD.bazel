@@ -1,6 +1,6 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
-load("@rules_oci//oci:defs.bzl", "oci_image", "oci_push")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_push", "oci_tarball")
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
 
 gazelle(
@@ -110,6 +110,7 @@ pkg_tar(
     srcs = [":bazel-remote"],
 )
 
+
 oci_image(
     name = "bazel-remote-image",
     base = "@cgo_amd64_base",  # Does not include openssl.
@@ -130,6 +131,12 @@ oci_image(
     ],
     user = str(BAZEL_REMOTE_USER_ID),
     visibility = ["//visibility:public"],
+)
+
+oci_tarball(
+    name = "bazel-remote-linux-amd64_tar",
+    image = ":bazel-remote-image",
+    repo_tags = ["bazel-remote-patched:latest"],
 )
 
 pkg_tar(

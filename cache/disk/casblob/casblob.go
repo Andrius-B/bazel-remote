@@ -485,6 +485,15 @@ func (h *header) write(f *os.File) error {
 		return err
 	}
 
+	var prevOffset int64
+	for i := 0; int64(i) < int64(len(h.chunkOffsets)); i++ {
+		if h.chunkOffsets[i] <= prevOffset {
+			return fmt.Errorf("offset table values should increase: %d -> %d",
+				prevOffset, h.chunkOffsets[i])
+		}
+		prevOffset = h.chunkOffsets[i]
+	}
+
 	return binary.Write(f, binary.LittleEndian, h.chunkOffsets)
 }
 
@@ -542,7 +551,7 @@ func WriteAndClose(zstd zstdimpl.ZstdImpl, r io.Reader, f *os.File, t Compressio
 
 	err = h.write(f)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("failed writing headers for %s/%d: %v", hash, size, err)
 	}
 
 	fileOffset := h.size()
