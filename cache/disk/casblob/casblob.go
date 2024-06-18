@@ -153,14 +153,13 @@ func readHeader(f *os.File) (*header, error) {
 	for i := 0; int64(i) < numOffsets; i++ {
 		if h.chunkOffsets[i] <= prevOffset {
 			return nil,
-				fmt.Errorf("offset table values should increase: %d -> %d",
-					h.chunkOffsets[i], prevOffset)
+				fmt.Errorf("offset table values should increase, found %d -> %d in %v",
+					prevOffset, h.chunkOffsets[i], f.Name())
 		}
 		prevOffset = h.chunkOffsets[i]
 	}
-	if numOffsets >= 2 {
-		return nil, fmt.Errorf("correct offset table values: %v", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
-	}
+
+	fmt.Printf("offset table values: %v\n", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
 
 	if prevOffset != foundFileSize {
 		return nil,
