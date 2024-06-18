@@ -644,7 +644,7 @@ func WriteAndClose(zstd zstdimpl.ZstdImpl, r io.Reader, f *os.File, t Compressio
 		return -1, fmt.Errorf("Failed to write chunk offsets: %w", err)
 	}
 
-	fmt.Printf("Written offset table in %v: full table: %s", f.Name(), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
+	fmt.Printf("Written offset table in %v: full table: %s\n", f.Name(), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
 
 	err = f.Sync()
 	if err != nil {
