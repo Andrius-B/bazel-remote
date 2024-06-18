@@ -158,6 +158,9 @@ func readHeader(f *os.File) (*header, error) {
 		}
 		prevOffset = h.chunkOffsets[i]
 	}
+	if numOffsets >= 2 {
+		return nil, fmt.Errorf("correct offset table values: %v", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
+	}
 
 	if prevOffset != foundFileSize {
 		return nil,
@@ -486,14 +489,14 @@ func (h *header) write(f *os.File) error {
 		return err
 	}
 
-	prevOffset := int64(-1)
-	for i := 0; int64(i) < int64(len(h.chunkOffsets)); i++ {
-		if h.chunkOffsets[i] <= prevOffset {
-			return fmt.Errorf("offset table values should increase: %v",
-				strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
-		}
-		prevOffset = h.chunkOffsets[i]
-	}
+	// prevOffset := int64(-1)
+	// for i := 0; int64(i) < int64(len(h.chunkOffsets)); i++ {
+	// 	if h.chunkOffsets[i] <= prevOffset {
+	// 		return fmt.Errorf("offset table values should increase: %v",
+	// 			strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
+	// 	}
+	// 	prevOffset = h.chunkOffsets[i]
+	// }
 
 	return binary.Write(f, binary.LittleEndian, h.chunkOffsets)
 }
