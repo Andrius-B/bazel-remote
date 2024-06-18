@@ -153,13 +153,11 @@ func readHeader(f *os.File) (*header, error) {
 	for i := 0; int64(i) < numOffsets; i++ {
 		if h.chunkOffsets[i] <= prevOffset {
 			return nil,
-				fmt.Errorf("offset table values should increase, found %d -> %d in %v",
-					prevOffset, h.chunkOffsets[i], f.Name())
+				fmt.Errorf("offset table values should increase, found %d -> %d in %v. Full table: %s",
+					prevOffset, h.chunkOffsets[i], f.Name(), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
 		}
 		prevOffset = h.chunkOffsets[i]
 	}
-
-	fmt.Printf("offset table values: %v\n", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
 
 	if prevOffset != foundFileSize {
 		return nil,
@@ -645,6 +643,8 @@ func WriteAndClose(zstd zstdimpl.ZstdImpl, r io.Reader, f *os.File, t Compressio
 	if err != nil {
 		return -1, fmt.Errorf("Failed to write chunk offsets: %w", err)
 	}
+
+	fmt.Printf("Written offset table in %v: full table: %s", f.Name(), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(h.chunkOffsets)), ","), "[]"))
 
 	err = f.Sync()
 	if err != nil {
